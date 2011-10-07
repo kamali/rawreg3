@@ -1,0 +1,43 @@
+<h1>Update Your Info</h1>
+
+<form class="reg" id="edit" action="/user/edit" method="post">
+
+  <% if @user.errors.any? %>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+	  <% end %>
+	</ul>
+  <% end %>
+
+  <label for="user_name">Name</label><br/>
+  <input type="text" name="user[name]" size="20" value="<%= h(@user.name) %>" /><br />
+  <br />
+
+  <% if false %>
+    <label for="user_email">Change Email?</label><br/>
+	<input type="text" name="user[email]" size="20" value="<%= h(@user.email) %>" /><br />
+	<br />
+
+	<label for="user_password">Change Password?</label><br/>
+	<input type="password" name="user[password]" size="20" value="<%= h(@user.password) %>" /><br />
+	<br />
+
+	<label for="user_password_confirmation">Password Confirmation</label><br/>
+	<input type="password" name="user[password_confirmation]" size="20" value="<%= h(@user.password_confirmation) %>" /><br />
+	<br />
+
+  <% end %>
+
+  <label for="user_timezone">Time Zone</label><br />
+  <select name="user[timezone]">
+	<%= time_zone_options_for_select(@user.timezone) %>
+  </select><br />
+  <br />
+
+  <input type="submit" value="Update Info" />
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>" />
+
+  <%= link_to 'Cancel', :action => 'account' %>
+  
+</form>

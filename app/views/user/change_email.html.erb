@@ -1,0 +1,22 @@
+<h1>Update Your Email</h1>
+
+<form class="reg" id="change_email" action="/user/change_email" method="post">
+
+  <% if @user.errors.any? %>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+	  <% end %>
+	</ul>
+  <% end %>
+
+  <label for="user_email">Change Email?</label><br/>
+  <input type="text" name="user[email]" size="20" value="<%= h(@user.email) %>" /><br />
+  <br />
+
+  <input type="submit" value="Update Email" />
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>" />
+
+  <%= link_to 'Cancel', :action => 'account' %>
+  
+</form>

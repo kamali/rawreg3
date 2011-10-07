@@ -1,0 +1,6 @@
+Hi <%= h(@user.email) %>,
+
+To complete your registration, please click on the link below:
+http://<%= Settings::SiteHost %>/user/verify?id=<%=@user.id%>&sig=<%=@sig%>
+
+

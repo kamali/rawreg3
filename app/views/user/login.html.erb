@@ -1,0 +1,25 @@
+<h1>Login</h1>
+
+<form class="reg" id="login" action="/user/login" method="post">
+
+  <% if @user.errors.any? %>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+	  <% end %>
+	</ul>
+  <% end %>
+
+  <label for="user_email">Email:</label><br/>
+  <input type="text" name="user[email]" size="20" value="<%= h(@user.email) %>" /><br />
+
+  <label for="user_password">Password:</label><br/>
+  <input type="password" name="user[password]" size="20" value="<%= h(@user.password) %>" /><br />
+
+  <input type="submit" value="Log In" />
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>" />
+
+  <%= link_to 'Sign up', :action => 'signup' %> |
+  <%= link_to 'Forgot my password', :action => 'forgot_password' %>     
+  
+</form>

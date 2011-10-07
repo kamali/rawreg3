@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rawreg3</title>
+  <%= stylesheet_link_tag :all %>
+  <%= javascript_include_tag :defaults %>
+  <%= csrf_meta_tag %>
+</head>
+<body>
+
+<% if flash[:warning] %>
+  <p class="warning"><%= flash[:warning] %>
+<% end %>
+<% if flash[:message] %>
+  <p class="message"><%= flash[:message] %>
+<% end %>
+
+<%= yield %>
+
+<% if ENV['RAILS_ENV']=='development' %>
+  <pre>
+	<%= debug params %>
+  </pre>
+
+  <pre>
+	<%= debug logged_in %>
+  </pre>
+
+  <pre>
+	<%= debug current_user %>
+  </pre>
+<% end %>
+
+
+</body>
+</html>

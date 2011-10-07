@@ -1,0 +1,90 @@
+<div class='user_admin'>
+  <form action='/user/admin' class='user_search' method='get'>
+    <label>
+      Search by email or name:
+    </label>
+	<input type="text" name="search" value="<%= h(params[:search]) %>" />
+    <label>
+      Or enter an ID:
+    </label>
+	<input type="text" name="id" value="<%= h(params[:id]) %>" />
+    <br />
+    <input type='submit' value='Go' />
+    <br />
+    <br />
+  </form>
+  <% if @users %>
+  <ul class='users'>
+    <% for u in @users %>
+    <li class='user'>
+	  <a href="/user/admin?id=<%= u.id %>">
+        ID: <%= u.id %>,
+        NAME: <%= h(u.name) %>,
+        EMAIL: <%= h(u.email) %>
+      </a>
+    </li>
+    <% end %>
+  </ul>
+  <br />
+  <br />
+  <% end %>
+
+  <% if @user %>
+  <h3>
+    <%= "Edit user #{h(@user.name) } (ID #{@user.id})" %>
+  </h3>
+  <small>
+    <%= "Created_at #{@user.created_at }" %><br />
+    <%= "Updated_at #{@user.updated_at }" %><br />
+  </small>
+  <br />
+
+  <% if @user.errors.any? %>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+	  <% end %>
+	</ul>
+  <% end %>
+
+  <form action="/user/admin" class="user_admin" method="post">
+	<input type="hidden" name="id" value="<%= @user.id %>"/>
+
+    <label>Name:</label><br />
+	<input type="text" name="user[name]" value="<%= h(@user.name) %>"/><br />
+	<br />
+
+    <label>Email:</label><br />
+	<input type="text" name="user[email]" value="<%= h(@user.email) %>"/><br />
+	<br />
+
+    <label>Roles:</label><br />
+	<input type="text" name="user[roles]" value="<%= h(@user.roles) %>"/><br />
+	<i>E.g. "admin"</i><br />
+	<br />
+
+    <label>Change Password:</label><br />
+    <input type="password" name="user[password]" /><br />
+    <label>Confirm Password:</label><br />
+    <input type="password" name="user[password_confirmation]" /><br />
+	<br />
+
+    <label>Verified:</label>
+    <input type="checkbox" name="user[verified]" value="1" <%= @user.verified ? 'checked="checked"' : '' %> /><br />
+    <label>Deactivated?</label>
+	<%= @user.deactivated || "no" %>
+	<% if @user.deactivated %>
+	  <a href="/user/admin?op=reactivate&id=<%= @user.id %>" onclick="return confirm('Are you sure?')">Reactivate</a>
+	<% end %>
+
+	<br />
+	<br />
+
+	<input type="submit" value="save changes" />
+	<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>" />
+	<br /><br />
+  </form>
+  <a href="/user/admin?op=delete&id=<%= @user.id %>" onclick="return confirm('Are you sure?')">Delete</a> |
+  <a href="/user/admin?op=block&id=<%= @user.id %>" onclick="return confirm('Are you sure?')">Block</a>
+  <% end %>
+</div>

@@ -1,0 +1,5 @@
+Hi <%= h(@new_email) %>,
+
+To complete changing your email address from <%= h(@user.email) %>, please click on the link below:
+http://<%= Settings::SiteHost %>/user/verify?id=<%=@user.id%>&email=<%=@new_email%>&sig=<%=@sig%>
+
