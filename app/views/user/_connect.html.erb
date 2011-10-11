@@ -1,0 +1,36 @@
+<% if @authentications %>
+  <% unless @authentications.empty? %>
+    <p><strong>You have connected this account to:</strong></p>
+    <div class="authentications">
+      <% for authentication in @authentications %>
+        <div class="authentication">
+          <%= image_tag "#{authentication.provider}_32.png", :size => "32x32" %>
+          <div class="provider"><%= authentication.provider.titleize %></div>
+          <div class="uid"><%= authentication.uid %></div>
+          <%= link_to "X", "/user/disconnect/#{authentication.id}", :confirm => 'Are you sure you want to remove this authentication option?', :method => :delete, :class => "remove" %>
+        </div>
+      <% end %>
+      <div class="clear"></div>
+    </div>
+  <% end %>
+  <p><strong>Add another service to sign in with:</strong></p>
+<% else %>
+  <h2>Or, sign in through one of these services:</h2>
+<% end %>
+
+<a href="/auth/twitter" style="float: left; width: 80px; height: 90px; text-align: center">
+  <%= image_tag "twitter_64.png", :size => "64x64", :alt => "Twitter" %><br />
+  Twitter
+</a>
+<a href="/auth/facebook" style="float: left; width: 80px; height: 100px; text-align: center">
+  <%= image_tag "facebook_64.png", :size => "64x64", :alt => "Facebook" %><br />
+  Facebook
+</a>
+<a href="/auth/google_apps" style="float: left; width: 80px; height: 100px; text-align: center">
+  <%= image_tag "google_64.png", :size => "64x64", :alt => "Google" %><br />
+  Google
+</a>
+<a href="/auth/linkedin" style="float: left; width: 80px; height: 100px; text-align: center">
+  <%= image_tag "linkedin_64.png", :size => "64x64", :alt => "LinkedIn" %><br />
+  Linkedin
+</a>
