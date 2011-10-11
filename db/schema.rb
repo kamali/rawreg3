@@ -10,7 +10,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100825185250) do
+ActiveRecord::Schema.define(:version => 20111007173050) do
+
+  create_table "authentication", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "provider"
+    t.string   "uid"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "authentication", ["provider", "uid"], :name => "index_authentication_on_provider_and_uid", :unique => true
+  add_index "authentication", ["user_id"], :name => "index_authentication_on_user_id"
 
   create_table "user", :force => true do |t|
     t.datetime "created_at"

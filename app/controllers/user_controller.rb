@@ -4,12 +4,15 @@ class UserController < ApplicationController
   before_filter :admin_required, :only=>['admin']
 
   def account
+    @authentications = current_user.authentications
   end
 
   def signup
     return if params[:user] && params[:user][:roles] ## just to be safe
 
     @user = User.new(params[:user])
+    @user.apply_omniauth(session[:omniauth]) if session[:omniauth]
+
     @user.timezone  = 'Eastern Time (US & Canada)' unless @user.timezone
     if request.post?  
       @user['validate_password'] = true
@@ -17,6 +20,7 @@ class UserController < ApplicationController
         @user.send_verify_email
         flash[:message] = "Signup successful"
         render :template => 'user/check_email'
+        session[:omniauth] = nil if session[:omniauth]
       else
         flash[:warning] = "Signup unsuccessful"
       end
@@ -100,10 +104,12 @@ class UserController < ApplicationController
 
   def delete
     @user = current_user
-    @user.deactivated = 'deleted'
-    @user.email = nil
-    @user.save!
-    flash[:message] = 'Your account has been deleted'
+    if @user
+      @user.deactivated = 'deleted'
+      @user.email = nil
+      @user.save!
+      flash[:message] = 'Your account has been deleted'
+    end
     session[:user] = nil
     redirect_to '/'
   end
@@ -177,6 +183,74 @@ class UserController < ApplicationController
 
     end ## have params[:id]
 
+  end
+
+
+  ## login, connect an existing account, or create a new account
+  ## via facebook, twitter, linkedin, etc.
+  def connect
+    omniauth = request.env["omniauth.auth"]
+    logger.debug "OMNIAUTH HASH:\n" + omniauth.to_yaml;
+
+    authentication = Authentication.find_by_provider_and_uid(omniauth['provider'], omniauth['uid'])
+    logger.debug "=== have authentication? #{authentication || 'no'}"
+    if authentication
+      flash[:notice] = "Signed in successfully."
+      #sign_in_and_redirect(:user, authentication.user)
+      ## log me in
+      session[:user] = User.active.find_by_id(authentication.user_id).to_session
+      redirect_to '/user/account'
+    elsif current_user
+      logger.debug "=== have current_user? #{current_user.id}"
+      logger.debug "=== provider: #{omniauth['provider']}, uid: #{omniauth['uid']}"
+      #current_user.authentications.create!(:provider => omniauth['provider'], :uid => omniauth['uid'])
+      
+      authentication = Authentication.new(:user_id => current_user.id,
+                                          :provider => omniauth['provider'],
+                                          :uid => omniauth['uid'])
+
+      if authentication.save!
+        logger.debug "=== authentication created"
+        flash[:notice] = "Authentication successful."
+      else
+        flash[:warning] = "There was a problem connecting your account"
+      end
+      redirect_to '/user/account'
+
+
+    else
+      logger.debug "=== create new user.."
+
+      user = User.new
+      user.apply_omniauth(omniauth)
+      user.password = User.random_string(10) if user.password.blank?
+
+      if user.save
+        flash[:notice] = "Signed in successfully."
+        session[:user] = user.to_session
+        redirect_to '/user/account'
+      else
+        ## don't have all we need? send to signup.
+        session[:omniauth] = omniauth.except('extra')
+        redirect_to '/user/signup'
+      end
+    end
+  end
+
+  def disconnect
+    @authentication = current_user.authentications.find(params[:id])
+    @authentication.destroy
+    flash[:notice] = "Successfully destroyed authentication."
+    redirect_to '/user/account'
+  end
+
+  protected
+
+  # This is necessary since Rails 3.0.4
+  # See https://github.com/intridea/omniauth/issues/185
+  # and http://www.arailsdemo.com/posts/44
+  def handle_unverified_request
+    true
   end
 
 end

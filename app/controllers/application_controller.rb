@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
 
   def send_to_login
     flash[:warning]='Please login to continue'
-    session[:return_to]=request.request_uri
+    session[:return_to]=request.fullpath
     redirect_to :controller => "user", :action => "login"
     return false
   end

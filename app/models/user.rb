@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
 
   scope :active, :conditions => "user.verified=1 AND deactivated IS NULL"
 
+  has_many :authentications
+
   ############
 
   ## class methods to sign strings with our secret
@@ -97,6 +99,7 @@ class User < ActiveRecord::Base
     Session.new( self )
   end
 
+  ## TODO: delete authentication rows
   def deactivate
     email = nil
     deactivated = 'deactivated'
@@ -106,6 +109,22 @@ class User < ActiveRecord::Base
   def block
     deactivated = 'blocked'
     user.save!
+  end
+
+  ## omniauth
+  ## TODO: get timezone from offset, something like? ActiveSupport::TimeZone[-8]
+  def apply_omniauth(omniauth)
+    if email.blank? && omniauth['user_info']['email']
+      self.email = omniauth['user_info']['email']
+      self.verified = true
+    end
+    self.name = omniauth['user_info']['name'] if name.blank?
+    self.timezone = 'Eastern Time (US & Canada)' if timezone.blank?
+    authentications.build(:provider => omniauth['provider'], :uid => omniauth['uid'])
+  end
+
+  def password_required?
+    (authentications.empty? || !password.blank?) && super
   end
 
 end

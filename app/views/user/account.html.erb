@@ -3,6 +3,7 @@
 <ul>
   <li>User ID: <%= logged_in.id %>
   <li>Name: <%= logged_in.name %> [<a href="/user/edit">change</a>]
+  <li>Timezone: <%= logged_in.timezone %> [<a href="/user/edit">change</a>]
   <li>Email: <%= current_user.email %> [<a href="/user/change_email">change</a>]
   <li>Password: ******** [<a href="/user/change_password">change</a>]
 </ul>
@@ -10,3 +11,8 @@
   <a href="/user/logout">Log out</a>
   <a href="/user/delete" onclick="return confirm('Are you sure?')">Delete your account</a>
 </p>
+
+
+<%= render :partial => "connect", :locals => {  } %>
+
+<div class="clear"></div>
