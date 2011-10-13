@@ -36,8 +36,9 @@ config/initializers/mail.rb ## delivery method set to sendmail (using ssmtp)
 
 == To INSTALL
 
-* unpack the repository
 * mysqladmin -u root -p create rawreg_development
+* git clone git@github.com:kamali/rawreg3.git rawreg3
+* cd rawreg3
 * edit config/database.yml with your db user/password info
 * rake --trace RAILS_ENV=development db:create db:migrate
 * edit config/environment.rb -- change the config.action_controller.session secret
