@@ -69,8 +69,18 @@ http://localhost:8080/user/admin  (to access, "update user set role="admin" wher
 
 A user table with email (string), password (string), salt (string), verified (boolean/tinyint) fields.
 
+== To post to Twitter / Facebook
+
+    for a in current_user.authentications
+      case a.provider
+        when 'facebook' then current_user.facebook(a).feed!(:message => 'Hello, Testing Facebook', :name => 'Lynk' )
+        when 'twitter' then current_user.twitter(a).update("Hello, Testing Twitter")
+      end
+    end
+
 == Other Notes
 
+Add your OAuth keys to config/initializers/omniauth.rb 
 There is intentionally nearly zero styling--you'll want to wrap your own stylesheets and CSS around everything.
 
 Tests are up to you for now after modifying the code however you want.

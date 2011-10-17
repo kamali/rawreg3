@@ -9,9 +9,9 @@ class User < ActiveRecord::Base
   validates_presence_of :password, :password_confirmation, :if => Proc.new{ |u| u['validate_password'] }
   validates_confirmation_of :password, :if => Proc.new{ |u| u['validate_password'] }
 
-  validates_presence_of :email, :unless => :deactivated
-  validates_uniqueness_of :email, :unless => :deactivated
-  validates_format_of :email, :with => /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i, :message => "Invalid email", :unless => :deactivated
+#  validates_presence_of :email, :unless => :deactivated ## OPTIONAL
+  validates_uniqueness_of :email, :unless => :deactivated, :allow_nil => true
+  validates_format_of :email, :with => /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i, :message => "Invalid email", :unless => :deactivated, :allow_nil => true
 
   attr_protected :id, :salt
   attr_accessor :password, :password_confirmation
@@ -101,9 +101,11 @@ class User < ActiveRecord::Base
 
   ## TODO: delete authentication rows
   def deactivate
+    Authentication.delete_all(:user_id => self.id)
     email = nil
+    name = 'Deactivated'
     deactivated = 'deactivated'
-    user.save!
+    save!
   end
 
   def block
@@ -120,11 +122,34 @@ class User < ActiveRecord::Base
     end
     self.name = omniauth['user_info']['name'] if name.blank?
     self.timezone = 'Eastern Time (US & Canada)' if timezone.blank?
-    authentications.build(:provider => omniauth['provider'], :uid => omniauth['uid'])
+
+    authentications.build(:provider => omniauth['provider'], :uid => omniauth['uid'], 
+                          :token =>(omniauth['credentials']['token']),
+                          :secret =>(omniauth['credentials']['secret'])
+                          )
+
   end
 
-  def password_required?
-    (authentications.empty? || !password.blank?) && super
+
+  def facebook(authentication = nil)
+    unless @fb_user
+      authentication = authentication || authentications.find_by_provider('facebook')
+      @fb_user ||= FbGraph::User.me(authentication.token)
+    end
+    @fb_user
+  end
+
+  def twitter(authentication = nil)
+    unless @twitter_user
+      authentication = authentication || authentications.find_by_provider('twitter')
+      @twitter_user = Twitter::Client.new(
+                                          :consumer_key => Settings::TwitterConsumerKey,
+                                          :consumer_secret => Settings::TwitterConsumerSecret,
+                                          :oauth_token => authentication.token,
+                                          :oauth_token_secret => authentication.secret
+                                          ) rescue nil
+    end
+    @twitter_user
   end
 
 end

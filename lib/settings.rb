@@ -12,6 +12,10 @@ module Settings
     SiteName = 'Rawreg Example'
     SiteEmail = 'Rawreg Example <info@localhost>'
     Secret = "Change this random string... #428u3 ksadf 9823fokjh a kajshd fjh92hf3h";
+
+    ## TODO: remove redundancy of these keys both here and config/initializers/omniauth
+    TwitterConsumerKey = 'XXXXXXXXXXXX'
+    TwitterConsumerSecret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
   end
 
 end

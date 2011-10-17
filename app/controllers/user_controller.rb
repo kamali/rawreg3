@@ -31,15 +31,13 @@ class UserController < ApplicationController
   ## TODO: timeout in email verify link
   def verify
     @user = User.find(params[:id])
-    logger.info "VERIFYING USER #{@user.id}"
-    logger.info "User: #{@user.email} -- #{@user.email_sig(@user.email)} -- #{params[:sig]}"
     if @user && 
         @user.email_sig(params[:email] || @user.email) == params[:sig] && ## check sig
         (@user.email = params[:email] || @user.email) &&  ## chg email ?
         (params[:email] || @user.verified.blank?) && ## ensure unverified/new if not addr chg
         (@user.verified = true) &&  ## set to verified
         @user.save
-      logger.info "VERIFIED USER #{@user.verified} / #{@user.id}. Email = #{params[:email]} || #{@user.email}"
+
       session[:user] = @user.to_session
       flash[:message] = "Email verified"
       if params[:email]
@@ -105,13 +103,11 @@ class UserController < ApplicationController
   def delete
     @user = current_user
     if @user
-      @user.deactivated = 'deleted'
-      @user.email = nil
-      @user.save!
+      @user.deactivate
       flash[:message] = 'Your account has been deleted'
     end
     session[:user] = nil
-    redirect_to '/'
+    redirect_to '/user/signup'
   end
 
   def forgot_password
@@ -171,13 +167,10 @@ class UserController < ApplicationController
           params[:user].delete(:password_confirmation)
         end
 
-        logger.info " USER ADMIN SAVING CHANGES"
         if @user.update_attributes(params[:user])
           flash[:message] = "Changes saved"
-          logger.info " USER ADMIN SAVED"
         else
           flash[:warning] = "There were errors"
-          logger.info " USER ADMIN FAILED"
         end
       end
 
@@ -190,40 +183,40 @@ class UserController < ApplicationController
   ## via facebook, twitter, linkedin, etc.
   def connect
     omniauth = request.env["omniauth.auth"]
-    logger.debug "OMNIAUTH HASH:\n" + omniauth.to_yaml;
-
     authentication = Authentication.find_by_provider_and_uid(omniauth['provider'], omniauth['uid'])
-    logger.debug "=== have authentication? #{authentication || 'no'}"
+
+    ## authentication row matches?
     if authentication
       flash[:notice] = "Signed in successfully."
       #sign_in_and_redirect(:user, authentication.user)
       ## log me in
       session[:user] = User.active.find_by_id(authentication.user_id).to_session
       redirect_to '/user/account'
+
+    ## logged in?
     elsif current_user
-      logger.debug "=== have current_user? #{current_user.id}"
-      logger.debug "=== provider: #{omniauth['provider']}, uid: #{omniauth['uid']}"
-      #current_user.authentications.create!(:provider => omniauth['provider'], :uid => omniauth['uid'])
       
       authentication = Authentication.new(:user_id => current_user.id,
                                           :provider => omniauth['provider'],
-                                          :uid => omniauth['uid'])
+                                          :uid => omniauth['uid'],
+                                          :token => omniauth['credentials']['token'],
+                                          :secret => omniauth['credentials']['secret']
+                                          )
 
       if authentication.save!
-        logger.debug "=== authentication created"
         flash[:notice] = "Authentication successful."
       else
         flash[:warning] = "There was a problem connecting your account"
       end
       redirect_to '/user/account'
 
-
+    ## new user
     else
-      logger.debug "=== create new user.."
 
       user = User.new
       user.apply_omniauth(omniauth)
       user.password = User.random_string(10) if user.password.blank?
+      user.verified = true;
 
       if user.save
         flash[:notice] = "Signed in successfully."
@@ -231,7 +224,7 @@ class UserController < ApplicationController
         redirect_to '/user/account'
       else
         ## don't have all we need? send to signup.
-        session[:omniauth] = omniauth.except('extra')
+        session[:omniauth] = omniauth ## .except('extra')
         redirect_to '/user/signup'
       end
     end
