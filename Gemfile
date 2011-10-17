@@ -11,8 +11,11 @@ gem 'mysql2', '0.2.7'
 
 gem "rake", "0.8.7"
 
-#gem "rack", "1.2.4"
 gem "omniauth", "0.3.0"
+gem 'fb_graph', '1.5.4'
+#gem 'twitter', '~> 1.0.0'
+gem 'twitter'
+
 
 # Use unicorn as the web server
 gem 'unicorn'
