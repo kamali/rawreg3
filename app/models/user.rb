@@ -143,8 +143,6 @@ class User < ActiveRecord::Base
     unless @twitter_user
       authentication = authentication || authentications.find_by_provider('twitter')
       @twitter_user = Twitter::Client.new(
-                                          :consumer_key => Settings::TwitterConsumerKey,
-                                          :consumer_secret => Settings::TwitterConsumerSecret,
                                           :oauth_token => authentication.token,
                                           :oauth_token_secret => authentication.secret
                                           ) rescue nil

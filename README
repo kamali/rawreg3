@@ -6,12 +6,16 @@ If you dislike registration plugins as I do, this code is meant as a starting po
 
 I often write my own from scratch, so thought it'd be useful to have the basics I always use in one ready to go package. But, it's done as raw code, as each project's needs inevitably evolve in a way that makes plugins a pain. This is mostly here for my own use, but if you find it useful, let me know.
 
-If you want to start from scratch, I recommend this great tutorial, which I've found useful and whose approach I like. (The railscasts on OmniAuth are great too.)
-http://www.aidanf.net/rails_user_authentication_tutorial
-
 FWIW, I also don't like restful URLs (e.g. /sessions/new & /sessions/create) for user-facing registration actions. Everything herein is done via the default routes and the UserController. I usually do top-level, human-friendly mappings for '/login', '/signup', etc. in config/routes.rb too.
 
 Another non-standard-Rails thing is the use of singular table names, which I very much prefer-- should be easy to change if you want plural table names. Finally, I prefer one 250 line controller to 10 25-line controllers.
+
+If you want to start from scratch, I recommend this great tutorial, which I've found useful and whose approach I like.
+http://www.aidanf.net/rails_user_authentication_tutorial
+
+Finally, these are great docs on OmniAuth integration:
+http://railscasts.com/episodes/235-omniauth-part-1
+http://blog.assimov.net/post/2358661274/twitter-integration-with-omniauth-and-devise-on-rails-3
 
 == What the code herein includes
 
@@ -80,7 +84,8 @@ A user table with email (string), password (string), salt (string), verified (bo
 
 == Other Notes
 
-Add your OAuth keys to config/initializers/omniauth.rb 
+Add your OAuth keys to config/initializers/omniauth.rb.
+
 There is intentionally nearly zero styling--you'll want to wrap your own stylesheets and CSS around everything.
 
 Tests are up to you for now after modifying the code however you want.
