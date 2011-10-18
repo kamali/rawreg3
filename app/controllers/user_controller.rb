@@ -187,11 +187,17 @@ class UserController < ApplicationController
 
     ## authentication row matches?
     if authentication
+      ## check if token/secret have changed.
+      if authentication.token != omniauth['credentials']['token'] ||
+          authentication.secret != omniauth['credentials']['secret']
+        authentication.token = omniauth['credentials']['token']
+        authentication.secret = omniauth['credentials']['secret']
+        authentication.save
+      end
       flash[:notice] = "Signed in successfully."
-      #sign_in_and_redirect(:user, authentication.user)
       ## log me in
       session[:user] = User.active.find_by_id(authentication.user_id).to_session
-      redirect_to '/user/account'
+      redirect_to_stored '/user/account'
 
     ## logged in?
     elsif current_user
@@ -208,11 +214,10 @@ class UserController < ApplicationController
       else
         flash[:warning] = "There was a problem connecting your account"
       end
-      redirect_to '/user/account'
+      redirect_to_stored '/user/account'
 
     ## new user
     else
-
       user = User.new
       user.apply_omniauth(omniauth)
       user.password = User.random_string(10) if user.password.blank?
@@ -221,7 +226,7 @@ class UserController < ApplicationController
       if user.save
         flash[:notice] = "Signed in successfully."
         session[:user] = user.to_session
-        redirect_to '/user/account'
+        redirect_to_stored '/user/account'
       else
         ## don't have all we need? send to signup.
         session[:omniauth] = omniauth ## .except('extra')
