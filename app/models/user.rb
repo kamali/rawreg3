@@ -99,7 +99,6 @@ class User < ActiveRecord::Base
     Session.new( self )
   end
 
-  ## TODO: delete authentication rows
   def deactivate
     Authentication.delete_all(:user_id => self.id)
     email = nil
@@ -112,6 +111,8 @@ class User < ActiveRecord::Base
     deactivated = 'blocked'
     user.save!
   end
+
+  ############
 
   ## omniauth
   ## TODO: get timezone from offset, something like? ActiveSupport::TimeZone[-8]
@@ -127,9 +128,14 @@ class User < ActiveRecord::Base
                           :token =>(omniauth['credentials']['token']),
                           :secret =>(omniauth['credentials']['secret'])
                           )
-
   end
 
+  def linked_facebook
+    return authentications.map{|a| a.provider}.index('facebook')
+  end
+  def linked_twitter
+    return authentications.map{|a| a.provider}.index('twitter')
+  end
 
   def facebook(authentication = nil)
     unless @fb_user

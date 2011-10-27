@@ -18,7 +18,7 @@ class UserController < ApplicationController
       @user['validate_password'] = true
       if @user.save
         @user.send_verify_email
-        flash[:message] = "Signup successful"
+        flash[:success] = "Signup successful"
         render :template => 'user/check_email'
         session[:omniauth] = nil if session[:omniauth]
       else
@@ -39,7 +39,7 @@ class UserController < ApplicationController
         @user.save
 
       session[:user] = @user.to_session
-      flash[:message] = "Email verified"
+      flash[:success] = "Email verified"
       if params[:email]
         redirect_to :action => 'account'
       else
@@ -54,7 +54,7 @@ class UserController < ApplicationController
     if request.post?
       if @user = User.authenticate(params[:user][:email], params[:user][:password])
         session[:user] = @user.to_session
-        flash[:message]  = "Login successful"
+        flash[:success]  = "Login successful"
         redirect_to_stored :action => 'account' 
       else
         flash[:warning] = "Login unsuccessful"
@@ -65,7 +65,7 @@ class UserController < ApplicationController
 
   def logout
     session[:user] = nil
-    flash[:message] = 'Logged out'
+    flash[:success] = 'Logged out'
     redirect_to :action => 'login'
   end
 
@@ -81,10 +81,10 @@ class UserController < ApplicationController
       end
       if @user.update_attributes(params[:user])
         session[:user] = @user.to_session
-        flash[:message] = "Changes saved"
+        flash[:success] = "Changes saved"
         if new_email
           @user.send_change_email(new_email)
-          flash[:message] = "Please check your email at #{new_email} to complete the change"
+          flash[:success] = "Please check your email at #{new_email} to complete the change"
         end
         redirect_to :action => 'account'
       else
@@ -104,7 +104,7 @@ class UserController < ApplicationController
     @user = current_user
     if @user
       @user.deactivate
-      flash[:message] = 'Your account has been deleted'
+      flash[:success] = 'Your account has been deleted'
     end
     session[:user] = nil
     redirect_to '/user/signup'
@@ -114,7 +114,7 @@ class UserController < ApplicationController
     if request.post?
       @user = User.find_by_email(params[:user][:email])
       if @user and @user.send_new_password
-        flash[:message]  = "A new password has been sent by email."
+        flash[:success]  = "A new password has been sent by email."
         redirect_to :action=>'login'
       else
         flash[:warning]  = "Couldn't send password--please enter the email address you signed up with."
@@ -168,7 +168,7 @@ class UserController < ApplicationController
         end
 
         if @user.update_attributes(params[:user])
-          flash[:message] = "Changes saved"
+          flash[:success] = "Changes saved"
         else
           flash[:warning] = "There were errors"
         end

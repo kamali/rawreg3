@@ -13,24 +13,22 @@
       <div class="clear"></div>
     </div>
   <% end %>
-  <p><strong>Add another service to sign in with:</strong></p>
+  <% if @authentications.length < 2 %>
+	 <p><strong>Add another service to sign in with:</strong></p>
+  <% end %>
 <% else %>
-  <h2>Or, sign in through one of these services:</h2>
+  <h2>Sign in through one of these services:</h2>
 <% end %>
 
+<% if ! @authentications || ! @authentications.map{ |a| a.provider }.index('twitter') %>
 <a href="/auth/twitter" style="float: left; width: 80px; height: 90px; text-align: center">
   <%= image_tag "twitter_64.png", :size => "64x64", :alt => "Twitter" %><br />
   Twitter
 </a>
+<% end %>
+<% if ! @authentications || ! @authentications.map{ |a| a.provider }.index('facebook') %>
 <a href="/auth/facebook" style="float: left; width: 80px; height: 100px; text-align: center">
   <%= image_tag "facebook_64.png", :size => "64x64", :alt => "Facebook" %><br />
   Facebook
 </a>
-<a href="/auth/google_apps" style="float: left; width: 80px; height: 100px; text-align: center">
-  <%= image_tag "google_64.png", :size => "64x64", :alt => "Google" %><br />
-  Google
-</a>
-<a href="/auth/linkedin" style="float: left; width: 80px; height: 100px; text-align: center">
-  <%= image_tag "linkedin_64.png", :size => "64x64", :alt => "LinkedIn" %><br />
-  Linkedin
-</a>
+<% end %>
